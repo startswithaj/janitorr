@@ -73,10 +73,16 @@ abstract class AbstractCleanupSchedule(
         val servarrEntries = servarrService.getEntries().filter(entryFilter)
         jellystatService.populateWatchHistory(servarrEntries, libraryType)
 
-        val leavingSoon = servarrEntries.filter { it.historyAge.plusDays(expirationDays - leavingSoonExpiration) < today && it.historyAge.plusDays(expirationDays) >= today }
+        // Filter to items that are expiring (leaving soon or to be deleted)
+        val expiringItems = servarrEntries.filter { it.historyAge.plusDays(expirationDays - leavingSoonExpiration) < today }
+
+        // Filter out favorited items
+        val filteredEntries = mediaServerService.filterOutFavorites(expiringItems, libraryType)
+
+        val leavingSoon = filteredEntries.filter { it.historyAge.plusDays(expirationDays - leavingSoonExpiration) < today && it.historyAge.plusDays(expirationDays) >= today }
         mediaServerService.updateLeavingSoon(cleanupType, libraryType, leavingSoon, onlyAddLinks)
 
-        val toDeleteMedia = servarrEntries.filter { it.historyAge.plusDays(expirationDays) < today }
+        val toDeleteMedia = filteredEntries.filter { it.historyAge.plusDays(expirationDays) < today }
         deleteTask(toDeleteMedia)
 
         if (log.isTraceEnabled) {

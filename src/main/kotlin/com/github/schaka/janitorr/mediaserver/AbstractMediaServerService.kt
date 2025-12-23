@@ -33,6 +33,12 @@ abstract class AbstractMediaServerService {
 
     abstract fun updateLeavingSoon(cleanupType: CleanupType, libraryType: LibraryType, items: List<LibraryItem>, onlyAddLinks: Boolean = false)
 
+    abstract fun getAllFavoritedItems(): List<FavoriteItem>
+
+    abstract fun isItemFavorited(item: LibraryItem, favoritedItems: List<FavoriteItem>): Boolean
+
+    abstract fun filterOutFavorites(items: List<LibraryItem>, libraryType: LibraryType): List<LibraryItem>
+
     protected fun isMediaFile(path: String) =
         filePattern.matches(path)
 

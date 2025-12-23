@@ -2,20 +2,27 @@ package com.github.schaka.janitorr.mediaserver
 
 import com.github.schaka.janitorr.config.ApplicationProperties
 import com.github.schaka.janitorr.config.FileSystemProperties
+import com.github.schaka.janitorr.mediaserver.api.User
 import com.github.schaka.janitorr.mediaserver.jellyfin.JellyfinProperties
 import com.github.schaka.janitorr.mediaserver.jellyfin.JellyfinRestService
+import com.github.schaka.janitorr.mediaserver.library.LibraryContent
+import com.github.schaka.janitorr.mediaserver.library.ProviderIds
+import com.github.schaka.janitorr.mediaserver.library.items.ItemPage
 import com.github.schaka.janitorr.servarr.LibraryItem
 import com.github.schaka.janitorr.servarr.bazarr.BazarrService
+import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.SpyK
 import io.mockk.junit5.MockKExtension
+import io.mockk.mockk
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.nio.file.Path
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 @ExtendWith(MockKExtension::class)
 internal class MediaRestServiceTest {
@@ -39,7 +46,13 @@ internal class MediaRestServiceTest {
     lateinit var applicationProperties: ApplicationProperties
 
     @SpyK
-    var fileSystemProperties: FileSystemProperties = FileSystemProperties("/data/media/leaving-soon", "/data/media/leaving-soon", true, true)
+    var fileSystemProperties: FileSystemProperties = FileSystemProperties(
+        access = true,
+        leavingSoonDir = "/data/media/leaving-soon",
+        mediaServerLeavingSoonDir = "/data/media/leaving-soon",
+        validateSeeding = true,
+        fromScratch = true
+    )
 
     @Test
     fun testMovieStructure() {
